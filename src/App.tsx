@@ -1,8 +1,18 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import moment from "moment";
-import { Button, Input, NextUIProvider, Switch } from "@nextui-org/react";
-import { log } from "node:util";
+import {
+  Button,
+  Input,
+  NextUIProvider,
+  Switch,
+  Table,
+  TableBody,
+  TableCell,
+  TableColumn,
+  TableHeader,
+  TableRow,
+} from "@nextui-org/react";
 
 interface StationInfo {
   id: string;
@@ -63,7 +73,6 @@ function App() {
   const [searchQuery, setSearchQuery] = useState<string>(""); // For handling user input
   const [switchChecked, setSwitchChecked] = useState<boolean>(false); // Managing switch state
 
-  // Handle the switch toggle
   const handleSwitchChange = () => {
     setSwitchChecked((prev) => !prev);
   };
@@ -71,14 +80,16 @@ function App() {
   async function getApi(station: string, arrDep: string) {
     try {
       setLoading(true);
-      let api = await fetch(
+      const api = await fetch(
         `https://api.irail.be/liveboard/?station=${station}&format=json&arrdep=${arrDep}&lang=fr`,
       );
-      let response: ApiData = await api.json();
-      setApiData(response);
-      setLoading(false);
+      const response: ApiData = await api.json();
+      if (response) {
+        setApiData(response);
+      }
     } catch (error) {
       console.error("Error fetching the API data:", error);
+    } finally {
       setLoading(false);
     }
   }
@@ -91,51 +102,56 @@ function App() {
     e.preventDefault();
     setStationName(searchQuery);
   };
-  console.log(apiData);
 
   return (
     <div className="App">
-      <header className="App-header">
-        <form onSubmit={handleSearch}>
-          <label>
-            Arrivées / Départs
-            <Switch
-              name={"arrDep"}
-              size={"md"}
-              checked={switchChecked}
-              onChange={handleSwitchChange}
-            />
-          </label>
-          <Input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Enter station name"
+      <form onSubmit={handleSearch}>
+        <label>
+          Départs / Arrivées
+          <Switch
+            name={"arrDep"}
+            size={"md"}
+            checked={switchChecked}
+            onChange={handleSwitchChange}
           />
-          <Button type="submit">Search</Button>
-        </form>
-        {loading ? (
-          <p>Loading...</p>
-        ) : !apiData ? (
-          <p>Failed to load data</p>
-        ) : (
-          <ul>
-            {apiData.departures
-              ? apiData.departures?.departure.map((departure, index) => (
-                  <li key={index}>
-                    {departure.station} - {departure.vehicleinfo?.shortname} -{" "}
-                    {moment.unix(parseInt(departure.time)).format("HH:mm")}
-                  </li>
-                ))
-              : apiData.arrivals?.arrival.map((arrival, index) => (
-                  <li key={index}>
-                    {arrival.station} - {arrival.vehicleinfo?.shortname} -{" "}
-                    {moment.unix(parseInt(arrival.time)).format("HH:mm")}
-                  </li>
-                ))}
-          </ul>
-        )}
-      </header>
+        </label>
+        <Input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Enter station name"
+        />
+        <Button type="submit">Search</Button>
+      </form>
+      {loading ? (
+        <p>Loading...</p>
+      ) : !apiData ? (
+        <p>Failed to load data</p>
+      ) : (
+        <div>
+          <Table>
+            <TableHeader>
+              <TableColumn>
+                {switchChecked ? "Arrivées" : "Départs"}
+              </TableColumn>
+              <TableColumn>Train</TableColumn>
+              <TableColumn>Heure</TableColumn>
+            </TableHeader>
+            <TableBody>
+              {(apiData.departures?.departure ||
+                apiData.arrivals?.arrival)!.map((entry, index) => (
+                <TableRow key={entry.id || index}>
+                  <TableCell>{entry.station}</TableCell>
+                  <TableCell>{entry.vehicleinfo?.shortname}</TableCell>
+                  <TableCell>
+                    {moment.unix(parseInt(entry.time)).format("HH:mm")}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
     </div>
   );
 }
