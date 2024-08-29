@@ -1,0 +1,14 @@
+/* Add this to your CSS file */
+.table .nextui-table-row {
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.table .nextui-table-row:hover {
+    cursor: pointer; /* Change cursor to pointer */
+    scale: 1.01;
+    transition: scale 0.1s ease-out;
+}
+
+.table .nextui-table-row:active {
+    background-color: #e0e0e0; /* Slightly darker grey when clicked */
+}
