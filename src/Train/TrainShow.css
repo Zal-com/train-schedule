@@ -1,0 +1,8 @@
+/* Add this CSS to your stylesheet or a <style> block */
+.list-unstyled li::after {
+    content: "";
+}
+
+.list-unstyled li:last-child::after {
+    content: "";
+}

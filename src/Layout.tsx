@@ -10,7 +10,7 @@ function Layout() {
     <NextUIProvider navigate={navigate}>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path={"/train/:id"} element={<TrainShow />} />
+        <Route path={"/train/:id/:station"} element={<TrainShow />} />
       </Routes>
     </NextUIProvider>
   );

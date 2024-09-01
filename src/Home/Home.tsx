@@ -19,7 +19,7 @@ export interface StationInfo {
   id: string;
   url: string;
   name: string;
-  standardName: string;
+  standardName: string; // Ensure this matches API response
   locationX: string;
   locationY: string;
 }
@@ -37,7 +37,7 @@ export interface VehicleInfo {
 interface Departure {
   id: string;
   station: string;
-  stationInfo: StationInfo;
+  stationinfo: StationInfo; // Ensure this matches API response
   vehicle: string;
   vehicleinfo: VehicleInfo;
   time: string;
@@ -52,7 +52,7 @@ interface Arrival {
   isExtra: string;
   platform: string;
   station: string;
-  stationInfo: StationInfo;
+  stationinfo: StationInfo; // Ensure this matches API response
   time: string;
   vehicle: string;
   vehicleinfo: VehicleInfo;
@@ -70,7 +70,7 @@ interface ApiData {
 function Home() {
   const [apiData, setApiData] = useState<ApiData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [stationName, setStationName] = useState<string>("Cologne"); // Default station name
+  const [stationName, setStationName] = useState<string>("Bruxelles-Midi"); // Default station name
   const [searchQuery, setSearchQuery] = useState<string>(""); // For handling user input
   const [switchChecked, setSwitchChecked] = useState<boolean>(false); // Managing switch state
 
@@ -103,6 +103,7 @@ function Home() {
     e.preventDefault();
     setStationName(searchQuery);
   };
+
   return (
     <div
       className="App"
@@ -135,7 +136,7 @@ function Home() {
           <Table isStriped={true} className="table mt-10">
             <TableHeader>
               <TableColumn>
-                {switchChecked ? "Arrivées" : "Départs"}
+                {switchChecked ? "Arrivées depuis" : "Départs vers"}
               </TableColumn>
               <TableColumn>Train</TableColumn>
               <TableColumn>Heure</TableColumn>
@@ -144,9 +145,8 @@ function Home() {
               {(apiData.departures?.departure ||
                 apiData.arrivals?.arrival)!.map((entry, index) => (
                 <TableRow
-                  className={"nextui-table-row"}
                   key={entry.id || index}
-                  href={"/train/" + entry.vehicleinfo.name}
+                  href={`/train/${entry.vehicleinfo.name.split(".")[2]}/${stationName}`}
                 >
                   <TableCell>{entry.station}</TableCell>
                   <TableCell>{entry.vehicleinfo?.shortname}</TableCell>
